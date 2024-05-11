@@ -22,13 +22,13 @@ def formatRawToSilver(data, team_info, stat_groups, filename):
             team_obj[group] = {}
             for key in keys:
                 if key in team:
-                    team_obj[group][key] = team[key]
+                    team_obj[group][key] = team[key]["default"]
 
         team_obj["statistics"] = stats_obj
         formatted_season_data.append(team_obj)
 
     season_obj = {}
-    season_obj['season_identifier'] = f'{filename[4:8]}'   # return '2008' for '20072008.json'
+    season_obj['season_identifier'] = int(f'{filename[4:8]}')   # return '2008' for '20072008.json'
     season_obj['full_season_identifier'] = f'{filename[0:4]}-{filename[4:8]}'  # return '2007-2008' for '20072008.json'
     season_obj['season_game_type'] = 'Regular Season'
     season_obj['season_data'] = formatted_season_data
@@ -45,7 +45,8 @@ files = [file for file in os.listdir(data_path)]
 
 #%%
 team_info = {
-        "team":["teamCommonName", "teamAbbrev", "teamName", "placeName", "conferenceName", "divisionAbbrev", "conferenceAbbrev"]
+        # "team":["teamCommonName", "teamAbbrev", "teamName", "placeName", "conferenceName", "divisionAbbrev", "conferenceAbbrev"]
+        "team":["teamCommonName", "teamAbbrev", "teamName", "placeName"]
     }
 
 stat_groups = {
@@ -56,12 +57,21 @@ stat_groups = {
 }
 
 #%% 
+full_standings = []
 
 for file in files:
     with open(os.path.join(data_path, file), "r") as json_file:
         data = json.load(json_file)
         silver_data = formatRawToSilver(data, team_info, stat_groups, file)
 
-        filename = os.path.join(os.path.dirname(__file__), "data", "standings", file)
-        with open(filename, "w") as silver_file:
-            json.dump(silver_data, silver_file)
+        # filename = os.path.join(os.path.dirname(__file__), "data", "standings", file)
+        # with open(filename, "w") as silver_file:
+        #     json.dump(silver_data, silver_file)
+
+        full_standings.append(silver_data)
+
+# %%
+filename = os.path.join(os.path.dirname(__file__), "data", "standings", "full_standings.json")
+with open(filename, "w") as silver_file:
+    json.dump(full_standings, silver_file)
+# %%
